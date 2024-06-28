@@ -1,9 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Link from 'next/link'; // Certifique-se de que o Link está importado corretamente
-import withAuth from '../../hocs/withAuth';
 
-export default withAuth(function Home() {
+export default function Home() {
   const [users, setUsers] = useState([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -108,4 +107,4 @@ export default withAuth(function Home() {
         </div>
     </div>
   );
-})
+}
