@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Link from 'next/link'; // Certifique-se de que o Link está importado corretamente
 
 export default function Home() {
   const [users, setUsers] = useState([]);
@@ -97,10 +98,10 @@ export default function Home() {
 
 <div>
             {/* Outro conteúdo do seu componente */}
-            <Link href="/admin">
-                <a>
-                    <button>Voltar para Admin</button>
-                </a>
+            <Link href="/">
+                
+                    <button>Voltar para login</button>
+                
             </Link>
             {/* Outro conteúdo do seu componente */}
         </div>

@@ -22,6 +22,7 @@ export default function Home() {
   const [accountNumber, setAccountNumber] = useState("");
   const [balance, setBalance] = useState("");
   const [categorias, setCategorias] = useState([]);
+  const [editCategoria, setEditCategoria] = useState("");
 
   useEffect(() => {
     fetchTransactions();
@@ -33,8 +34,7 @@ export default function Home() {
     try {
       const response = await axios.get("http://localhost:3001/categorias/all");
 
-      setCategorias(response.data)
-      
+      setCategorias(response.data);
     } catch (error) {
       console.error("Erro ao mostrar categoria:", error);
     }
@@ -89,11 +89,12 @@ export default function Home() {
   const handleTransactionSubmit = async () => {
     const description = document.getElementById("description").value;
     const value = parseFloat(document.getElementById("value").value);
-    const type = document.getElementById("type").value;
     const categoria = document.getElementById("categoria").value;
+    const type = document.getElementById("type").value;
+
     const date = editDate;
 
-    const transaction = { description, value, type, date, categoria };
+    const transaction = { description, value, date, type, categoria };
 
     try {
       const response = await fetch("http://localhost:3001/api/transactions", {
@@ -127,6 +128,7 @@ export default function Home() {
       value: parseFloat(editValue),
       type: editType,
       date: editDate,
+      categoria: editCategoria, // Inclui a categoria atualizada
     };
 
     try {
@@ -215,6 +217,7 @@ export default function Home() {
     setEditDescription(transaction.description);
     setEditValue(transaction.value.toString());
     setEditType(transaction.type);
+    setEditCategoria(transaction.categoria); // Inclui a categoria para edição
 
     // Validate transaction.date before setting editDate
     if (transaction.date) {
@@ -260,6 +263,13 @@ export default function Home() {
           </button>
         </Link>
       </div>
+      <div className="paginacategorias">
+        <Link href="/cadastrar/categorias">
+          <button style={{ padding: "10px 20px", cursor: "pointer" }}>
+            Adicionar Categorias
+          </button>
+        </Link>
+      </div>
       {/* Seção de Controle de Finanças */}
       <div className="container2">
         <h2>CONTROLE DE FINANÇAS</h2>
@@ -301,8 +311,10 @@ export default function Home() {
               <option value="exit">Saída</option>
             </select>
             <select id="categoria" name="categoria">
-              {categorias.map(cat => (
-                <option key={cat._id} value={cat.categoria}>{cat.categoria}</option>
+              {categorias.map((cat) => (
+                <option key={cat._id} value={cat.categoria}>
+                  {cat.categoria}
+                </option>
               ))}
             </select>
             <button onClick={handleTransactionSubmit}>Incluir</button>
@@ -316,8 +328,9 @@ export default function Home() {
             <tr>
               <th>Descrição</th>
               <th>Valor</th>
-              <th>Tipo</th>
+              <th>Categoria</th>
               <th>Data</th>
+              <th>Tipo</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -326,8 +339,9 @@ export default function Home() {
               <tr key={transaction._id}>
                 <td>{transaction.description}</td>
                 <td>{transaction.value.toFixed(2)}</td>
-                <td>{transaction.type === "entry" ? "Entrada" : "Saída"}</td>
+                <td>{transaction.categoria}</td>
                 <td>{format(new Date(transaction.date), "yyyy-MM-dd")}</td>
+                <td>{transaction.type === "entry" ? "Entrada" : "Saída"}</td>
                 <td>
                   <button onClick={() => openEditModal(transaction)}>
                     Editar
@@ -372,12 +386,23 @@ export default function Home() {
                 className="date-picker"
               />
               <select
+                value={editCategoria}
+                onChange={(e) => setEditCategoria(e.target.value)}
+              >
+                {categorias.map((cat) => (
+                  <option key={cat._id} value={cat.categoria}>
+                    {cat.categoria}
+                  </option>
+                ))}
+              </select>
+              <select
                 value={editType}
                 onChange={(e) => setEditType(e.target.value)}
               >
                 <option value="entry">Entrada</option>
                 <option value="exit">Saída</option>
               </select>
+
               <button onClick={handleEditSubmit}>Atualizar</button>
             </div>
           </div>
@@ -387,37 +412,37 @@ export default function Home() {
       <div className="container2">
         <h2>CADASTRO DE CONTAS BANCÁRIAS</h2>
         <div className="entry-section">
-          <h3>Nova Conta Bancária</h3>
+          <h3>Nova transação</h3>
           <div className="entry-form">
             <input
               type="text"
-              value={accountName}
-              onChange={(e) => setAccountName(e.target.value)}
-              placeholder="Nome da Conta"
+              id="description"
+              placeholder="Descrição"
               required
             />
-            <input
-              type="text"
-              value={bank}
-              onChange={(e) => setBank(e.target.value)}
-              placeholder="Banco"
-              required
+            <input type="text" id="value" placeholder="Valor" required />
+            <DatePicker
+              selected={editDate}
+              onChange={(date) => setEditDate(date)}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="Selecione a Data"
+              className="date-picker"
             />
-            <input
-              type="text"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder="Número da Conta"
-              required
-            />
-            <input
-              type="text"
-              value={balance}
-              onChange={(e) => setBalance(e.target.value)}
-              placeholder="Saldo"
-              required
-            />
-            <button onClick={submitAccount}>Cadastrar Conta</button>
+            <select id="categoria" defaultValue="">
+              <option value="" disabled>
+                Selecione uma Categoria
+              </option>
+              {categorias.map((cat) => (
+                <option key={cat._id} value={cat.categoria}>
+                  {cat.categoria}
+                </option>
+              ))}
+            </select>
+            <select id="type" defaultValue="entry">
+              <option value="entry">Entrada</option>
+              <option value="exit">Saída</option>
+            </select>
+            <button onClick={handleTransactionSubmit}>Incluir</button>
           </div>
         </div>
       </div>

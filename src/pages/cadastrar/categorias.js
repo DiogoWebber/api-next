@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import withAuth from '../../hocs/withAuth';
+
 
 const CategoriaPage = () => {
   const [categoria, setCategoria] = useState('');
@@ -93,4 +95,4 @@ const CategoriaPage = () => {
   );
 };
 
-export default CategoriaPage;
+export default withAuth(CategoriaPage);
