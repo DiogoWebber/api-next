@@ -5,8 +5,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import Link from "next/link";
 import "../../styles/Home.module.css"; // Importando o arquivo CSS
 import axios from "axios";
+import withAuth from '../../hocs/withAuth';
 
-export default function Home() {
+export default withAuth(function Home() {
   const [transactions, setTransactions] = useState([]);
   const [entryTotal, setEntryTotal] = useState(0);
   const [exitTotal, setExitTotal] = useState(0);
@@ -477,4 +478,4 @@ export default function Home() {
       </div>
     </div>
   );
-}
+})

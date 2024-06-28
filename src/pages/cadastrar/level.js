@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Link from 'next/link';
+import withAuth from '../../hocs/withAuth';
 
 const UpdateUserLevelPage = () => {
   const [users, setUsers] = useState([]);
@@ -95,4 +96,4 @@ const UpdateUserLevelPage = () => {
   );
 };
 
-export default UpdateUserLevelPage;
+export default withAuth(UpdateUserLevelPage);
