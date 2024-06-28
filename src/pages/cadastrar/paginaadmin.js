@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Link from "next/link";
+import "../../styles/Home.module.css"; // Importando o arquivo CSS
+import axios from "axios";
 
 export default function Home() {
   const [transactions, setTransactions] = useState([]);
@@ -18,12 +21,24 @@ export default function Home() {
   const [bank, setBank] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [balance, setBalance] = useState("");
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     fetchTransactions();
     fetchAccounts();
+    pegarcategoria();
   }, []);
 
+  const pegarcategoria = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/categorias/all");
+
+      setCategorias(response.data)
+      
+    } catch (error) {
+      console.error("Erro ao mostrar categoria:", error);
+    }
+  };
   const fetchTransactions = async () => {
     try {
       const response = await fetch("http://localhost:3001/api/transactions");
@@ -53,7 +68,6 @@ export default function Home() {
       alert("Erro ao buscar contas bancárias. Por favor, tente novamente.");
     }
   };
-  
 
   const updateTotals = (transactions) => {
     let entrySum = 0;
@@ -76,9 +90,10 @@ export default function Home() {
     const description = document.getElementById("description").value;
     const value = parseFloat(document.getElementById("value").value);
     const type = document.getElementById("type").value;
+    const categoria = document.getElementById("categoria").value;
     const date = editDate;
 
-    const transaction = { description, value, type, date };
+    const transaction = { description, value, type, date, categoria };
 
     try {
       const response = await fetch("http://localhost:3001/api/transactions", {
@@ -239,7 +254,11 @@ export default function Home() {
   return (
     <div className="container">
       <div className="controle">
-        <h2>CONTROLE FINANCEIRO PESSOAL</h2>
+        <Link href="/cadastrar/level">
+          <button style={{ padding: "10px 20px", cursor: "pointer" }}>
+            Gerenciamento de Contas
+          </button>
+        </Link>
       </div>
       {/* Seção de Controle de Finanças */}
       <div className="container2">
@@ -280,6 +299,11 @@ export default function Home() {
             <select id="type" defaultValue="entry">
               <option value="entry">Entrada</option>
               <option value="exit">Saída</option>
+            </select>
+            <select id="categoria" name="categoria">
+              {categorias.map(cat => (
+                <option key={cat._id} value={cat.categoria}>{cat.categoria}</option>
+              ))}
             </select>
             <button onClick={handleTransactionSubmit}>Incluir</button>
           </div>

@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-
 export default function Home() {
   const [users, setUsers] = useState([]);
   const [username, setUsername] = useState('');
@@ -95,6 +94,16 @@ export default function Home() {
       ) : (
         <p>No users available</p>
       )}
+
+<div>
+            {/* Outro conteúdo do seu componente */}
+            <Link href="/admin">
+                <a>
+                    <button>Voltar para Admin</button>
+                </a>
+            </Link>
+            {/* Outro conteúdo do seu componente */}
+        </div>
     </div>
   );
 }
