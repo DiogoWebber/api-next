@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import Link from "next/link";
 import withAuth from "../../hocs/withAuth";
+import styles from '../..//styles/Home.module.css'; 
 
 const Home = () => {
   const [transactions, setTransactions] = useState([]);
@@ -198,8 +199,9 @@ const Home = () => {
   };
 
   return (
-    <div className="container">
-      <div className="controle">
+    <div className={styles.pageWrapper}> 
+    <div className={styles.container}>
+      <div  className={styles.controle}>
         <Link href="/cadastrar/level">
           <button style={{ padding: "10px 20px", cursor: "pointer" }}>
             Gerenciamento de Contas
@@ -222,26 +224,27 @@ const Home = () => {
         </Link>
       </div>
 
-      <div className="container2">
-        <h2>CONTROLE DE FINANÇAS</h2>
-        <div className="summary-section">
-          <div className="summary-box">
+      <div className={styles.container2}>
+        <div className={styles.fundo}> 
+        <h2>CONTROLE DE FINANÇAS</h2></div>
+        <div className={styles.summarySection}>
+          <div className={styles.summaryBox}>
             <h3>Entrada</h3>
             <p>R$ {entryTotal.toFixed(2)}</p>
           </div>
-          <div className="summary-box">
+          <div className={styles.summaryBox}>
             <h3>Saída</h3>
             <p>R$ {exitTotal.toFixed(2)}</p>
           </div>
-          <div className="summary-box">
+          <div className={styles.summaryBox}>
             <h3>Total</h3>
             <p>R$ {total.toFixed(2)}</p>
           </div>
         </div>
 
-        <div className="entry-section">
-          <h3>Nova transação</h3>
-          <div className="entry-form">
+        <div className={styles.entrySection}>
+          <h3>NOVA TRANSAÇÃO</h3>
+          <div className={styles.entryForm}>
             <input
               type="text"
               value={editDescription}
@@ -304,8 +307,8 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="container2">
-        <table className="transaction-table">
+      <div className={styles.containerTable}>
+        <table className={styles.transactionTable}>
           <thead>
             <tr>
               <th>Descrição</th>
@@ -420,6 +423,7 @@ const Home = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

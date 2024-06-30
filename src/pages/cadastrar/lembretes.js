@@ -3,6 +3,7 @@ import axios from "axios";
 import { format, differenceInDays } from "date-fns";
 import withAuth from '../../hocs/withAuth';
 import Link from "next/link";
+import styles from '../../styles/Home.module.css'; 
 
 const Lembretes = () => {
   const [transactions, setTransactions] = useState([]);
@@ -48,10 +49,11 @@ const Lembretes = () => {
 
 
   return (
-    <div className="container">
+    <div className={styles.level}> 
+      <div className={styles.containerLevel}>
       <h2>Lembretes de Pagamento</h2>
 
-      <table className="transaction-table">
+      <table className={styles.tables}>
         <thead>
           <tr>
             <th>Descrição</th>
@@ -77,11 +79,14 @@ const Lembretes = () => {
           ))}
         </tbody>
       </table>
+      <div className={styles.admin}> 
       <Link href="/cadastrar/paginaadmin">
         <button style={{ padding: "10px 20px", cursor: "pointer" }}>
           Volta Pagina Admin
         </button>
       </Link>
+    </div>
+    </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import Link from 'next/link'; // Certifique-se de que o Link está importado corretamente
+import Link from 'next/link'; 
+import styles from '../../styles/styles.module.css'; 
 
 export default function Home() {
   const [users, setUsers] = useState([]);
@@ -62,49 +63,36 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div className={styles.containerUsers}>
       {errorAlert && <div className="alert alert-danger">{errorAlert}</div>}
-      
-      <h2>Create User</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Username:
-          <input type="text" value={username} onChange={handleUsernameChange} required />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input type="password" value={password} onChange={handlePasswordChange} required />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input type="email" value={email} onChange={handleEmailChange} required />
-        </label>
-        <br />
-        <button type="submit">Create User</button>
-      </form>
+      <div> 
+      <div className={styles.containerMeio}>
+  <h2>CRIAR USUÁRIO</h2>
+  <form onSubmit={handleSubmit}>
+    <label>
+     Usuário:
+      <input type="text" value={username} onChange={handleUsernameChange} required />
+    </label>
+    <label>
+      Senha:
+      <input type="password" value={password} onChange={handlePasswordChange} required />
+    </label>
+    <label>
+      Email:
+      <input type="email" value={email} onChange={handleEmailChange} required />
+    </label>
+    <button type="submit">Criar usuário</button>
+  </form>
 
-      <h2>Users</h2>
-      {users.length > 0 ? (
-        <ul>
-          {users.map((user, index) => (
-            <li key={index}>{user.username}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No users available</p>
-      )}
+  <div className="link-container">
+    <Link href="/">
+      <button>Voltar para Admin</button>
+    </Link>
+  </div>
+</div>
 
-<div>
-            {/* Outro conteúdo do seu componente */}
-            <Link href="/">
-                
-                    <button>Voltar para Admin</button>
-                
-            </Link>
-            {/* Outro conteúdo do seu componente */}
         </div>
     </div>
+
   );
 }

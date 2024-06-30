@@ -2,6 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/router';
 import Link from 'next/link'; // Importe o Link do next/link
+import styles from '../styles/styles.module.css';
+
 
 export default function Home() {
   const [username, setUsername] = useState('');
@@ -41,31 +43,33 @@ export default function Home() {
   };
 
   const handleCreateAccount = () => {
-    // Redireciona para a página de cadastro de usuário
+
     router.push('/cadastrar/user');
   };
 
   return (
-    <div>
+    <div className={styles.containerMaior}> 
+    <div className={styles.container}>
       {errorAlert && <div className="alert alert-danger">{errorAlert}</div>}
       
-      <h2>Login</h2>
+      <h2>CONECTE-SE</h2>
       <form onSubmit={handleLogin}>
-        <label>
-          Username:
+        <label id="user">
+          Usuário:
           <input type="text" value={username} onChange={handleUsernameChange} required />
         </label>
         <br />
         <label>
-          Password:
+          Senha:
           <input type="password" value={password} onChange={handlePasswordChange} required />
         </label>
         <br />
         <button type="submit">Login</button>
       </form>
 
-      <button onClick={handleCreateAccount}>Create Account</button>
+      <button onClick={handleCreateAccount}>Criar conta</button>
       
+    </div>
     </div>
   );
 }

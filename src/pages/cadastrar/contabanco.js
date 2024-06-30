@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from "next/link";
+import styles from '../../styles/Home.module.css'; 
 
 import withAuth from '@/hocs/withAuth';
 
@@ -59,9 +60,10 @@ const AddAccountForm = () => {
   };
 
   return (
-    <div className="container2">
+    <div className={styles.level}>
+    <div className={styles.containerLevel}>
       <h2>CADASTRO DE CONTAS BANCÁRIAS</h2>
-      <div className="entry-section">
+      <div className={styles.entrysection}>
         <h3>Nova conta bancária</h3>
         <div className="entry-form">
           <input
@@ -96,40 +98,42 @@ const AddAccountForm = () => {
         </div>
       </div>
       {/* Tabela de Contas Bancárias */}
-      <div className="container">
-        <table className="account-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Banco</th>
-              <th>Número</th>
-              <th>Saldo</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map((account) => (
-              <tr key={account._id}>
-                <td>{account.accountName}</td>
-                <td>{account.bank}</td>
-                <td>{account.accountNumber}</td>
-                <td>{account.balance.toFixed(2)}</td>
-                <td>
-                  <button onClick={() => handleDeleteAccount(account._id)}>
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <div className={styles.contas}>
+  <table className={styles.tables}>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Banco</th>
+        <th>Número</th>
+        <th>Saldo</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {accounts.map((account) => (
+        <tr key={account._id}>
+          <td>{account.accountName}</td>
+          <td>{account.bank}</td>
+          <td>{account.accountNumber}</td>
+          <td>{account.balance.toFixed(2)}</td>
+          <td>
+            <button onClick={() => handleDeleteAccount(account._id)}>
+              Excluir
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<div className={styles.admin} >
       <Link href="/cadastrar/paginaadmin">
           <button style={{ padding: "10px 20px", cursor: "pointer" }}>
             Voltar a Pagina Admin
           </button>
         </Link>
     </div>
+    </div> </div>
   );
 };
 
