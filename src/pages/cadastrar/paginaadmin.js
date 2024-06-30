@@ -19,11 +19,23 @@ const Home = () => {
   const [editType, setEditType] = useState("entry");
   const [categorias, setCategorias] = useState([]);
   const [editCategoria, setEditCategoria] = useState("");
+  const [editAccount, setEditAccount] = useState("");
+  const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
     fetchTransactions();
     fetchCategories();
+    fetchAccounts();
   }, []);
+
+  const fetchAccounts = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/accounts");
+      setAccounts(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar contas bancárias:", error);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -74,6 +86,7 @@ const Home = () => {
       dueDate: editDueDate,
       type: editType,
       categoria: editCategoria,
+      accountName: editAccount,
     };
 
     try {
@@ -92,6 +105,7 @@ const Home = () => {
       const data = await response.json();
       if (data.success) {
         fetchTransactions();
+        clearTransactionForm();
       } else {
         alert("Erro ao adicionar transação. Por favor, tente novamente.");
       }
@@ -110,6 +124,7 @@ const Home = () => {
       date: editDate,
       dueDate: editDueDate,
       categoria: editCategoria,
+      accountName: editAccount
     };
 
     try {
@@ -162,18 +177,24 @@ const Home = () => {
     setEditValue(transaction.value.toString());
     setEditType(transaction.type);
     setEditCategoria(transaction.categoria);
-    setEditDate(transaction.date ? new Date(transaction.date) : new Date());
+    setEditDate(new Date(transaction.date));
     setEditDueDate(transaction.dueDate ? new Date(transaction.dueDate) : new Date());
+    setEditAccount(transaction.accountName);
   };
 
   const closeEditModal = () => {
     setEditingTransaction(null);
+    clearTransactionForm();
+  };
+
+  const clearTransactionForm = () => {
     setEditDescription("");
     setEditValue("");
-    setEditType("entry");
     setEditDate(new Date());
     setEditDueDate(new Date());
     setEditCategoria("");
+    setEditAccount("");
+    setEditType("entry");
   };
 
   return (
@@ -250,13 +271,6 @@ const Home = () => {
               className="date-picker"
             />
             <select
-              value={editType}
-              onChange={(e) => setEditType(e.target.value)}
-            >
-              <option value="entry">Entrada</option>
-              <option value="exit">Saída</option>
-            </select>
-            <select
               value={editCategoria}
               onChange={(e) => setEditCategoria(e.target.value)}
             >
@@ -266,6 +280,25 @@ const Home = () => {
                 </option>
               ))}
             </select>
+            <select
+              value={editAccount}
+              onChange={(e) => setEditAccount(e.target.value)}
+            >
+              <option value="">Selecione a Conta</option>
+              {accounts.map((account) => (
+                <option key={account._id} value={account.accountName}>
+                  {`${account.accountName} - ${account.bank}`}
+                </option>
+              ))}
+            </select>
+            <select
+              value={editType}
+              onChange={(e) => setEditType(e.target.value)}
+            >
+              <option value="entry">Entrada</option>
+              <option value="exit">Saída</option>
+            </select>
+
             <button onClick={handleTransactionSubmit}>Incluir</button>
           </div>
         </div>
@@ -280,6 +313,7 @@ const Home = () => {
               <th>Data</th>
               <th>Vencimento</th>
               <th>Categoria</th>
+              <th>Conta</th>
               <th>Tipo</th>
               <th>Ações</th>
             </tr>
@@ -290,12 +324,17 @@ const Home = () => {
                 <td>{transaction.description}</td>
                 <td>{transaction.value.toFixed(2)}</td>
                 <td>
-                  {transaction.createdAt ? format(new Date(transaction.createdAt), "yyyy-MM-dd") : ""}
+                  {transaction.date
+                    ? format(new Date(transaction.date), "yyyy-MM-dd")
+                    : ""}
                 </td>
                 <td>
-                  {transaction.dueDate ? format(new Date(transaction.dueDate), "yyyy-MM-dd") : ""}
+                  {transaction.dueDate
+                    ? format(new Date(transaction.dueDate), "yyyy-MM-dd")
+                    : ""}
                 </td>
                 <td>{transaction.categoria}</td>
+                <td>{transaction.accountName}</td>
                 <td>{transaction.type === "entry" ? "Entrada" : "Saída"}</td>
                 <td>
                   <button onClick={() => openEditModal(transaction)}>
@@ -354,6 +393,17 @@ const Home = () => {
                 {categorias.map((cat) => (
                   <option key={cat._id} value={cat.categoria}>
                     {cat.categoria}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={editAccount}
+                onChange={(e) => setEditAccount(e.target.value)}
+              >
+                <option value="">Selecione a Conta</option>
+                {accounts.map((account) => (
+                  <option key={account._id} value={account.accountName}>
+                    {`${account.accountName} - ${account.bank}`}
                   </option>
                 ))}
               </select>
