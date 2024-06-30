@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import withAuth from '../../hocs/withAuth';
+import Link from "next/link";
 
 
 const CategoriaPage = () => {
@@ -32,17 +33,17 @@ const CategoriaPage = () => {
     }
   };
 
-  const pegarcategoria = async() =>{
+  const pegarcategoria = async () => {
     try {
-        const response = await axios.get(
-          'http://localhost:3001/categorias/all'
-        );
-        
-        setCategorias(response.data);
-      } catch (error) {
-        setMessage('Erro ao cadastrar categoria.');
-        console.error('Erro ao cadastrar categoria:', error);
-      }
+      const response = await axios.get(
+        'http://localhost:3001/categorias/all'
+      );
+
+      setCategorias(response.data);
+    } catch (error) {
+      setMessage('Erro ao cadastrar categoria.');
+      console.error('Erro ao cadastrar categoria:', error);
+    }
   }
 
   return (
@@ -58,7 +59,6 @@ const CategoriaPage = () => {
             required
           />
         </label>
-        <br />
         <button type="submit">Cadastrar</button>
       </form>
 
@@ -91,6 +91,12 @@ const CategoriaPage = () => {
         <p>Nenhuma categoria cadastrada.</p>
       )}
       {message && <p>{message}</p>}
+      <Link href="/cadastrar/paginaadmin">
+        <button style={{ padding: "10px 20px", cursor: "pointer" }}>
+          Voltar a Pagina Admin
+        </button>
+      </Link>
+
     </div>
   );
 };

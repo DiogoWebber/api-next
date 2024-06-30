@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Link from "next/link";
-import "../../styles/Home.module.css"; // Importando o arquivo CSS
 import axios from "axios";
-import withAuth from '../../hocs/withAuth';
+import Link from "next/link";
+import withAuth from "../../hocs/withAuth";
 
-export default withAuth(function Home() {
+const Home = () => {
   const [transactions, setTransactions] = useState([]);
   const [entryTotal, setEntryTotal] = useState(0);
   const [exitTotal, setExitTotal] = useState(0);
@@ -15,58 +14,38 @@ export default withAuth(function Home() {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [editDescription, setEditDescription] = useState("");
   const [editValue, setEditValue] = useState("");
-  const [editType, setEditType] = useState("entry");
   const [editDate, setEditDate] = useState(new Date());
-  const [accounts, setAccounts] = useState([]);
-  const [accountName, setAccountName] = useState("");
-  const [bank, setBank] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [balance, setBalance] = useState("");
+  const [editDueDate, setEditDueDate] = useState(new Date());
+  const [editType, setEditType] = useState("entry");
   const [categorias, setCategorias] = useState([]);
   const [editCategoria, setEditCategoria] = useState("");
 
   useEffect(() => {
     fetchTransactions();
-    fetchAccounts();
-    pegarcategoria();
+    fetchCategories();
   }, []);
 
-  const pegarcategoria = async () => {
+  const fetchCategories = async () => {
     try {
       const response = await axios.get("http://localhost:3001/categorias/all");
-
       setCategorias(response.data);
     } catch (error) {
-      console.error("Erro ao mostrar categoria:", error);
+      console.error("Erro ao buscar categorias:", error);
     }
   };
+
   const fetchTransactions = async () => {
     try {
       const response = await fetch("http://localhost:3001/api/transactions");
-      if (response.ok) {
-        const data = await response.json();
-        setTransactions(data);
-        updateTotals(data);
-      } else {
+      if (!response.ok) {
         throw new Error("Erro ao buscar transações");
       }
+      const data = await response.json();
+      data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      setTransactions(data);
+      updateTotals(data);
     } catch (error) {
-      console.error("Erro:", error);
-    }
-  };
-
-  const fetchAccounts = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/accounts");
-      if (response.ok) {
-        const data = await response.json();
-        setAccounts(data); // Atualiza o estado das contas com os dados recebidos
-      } else {
-        throw new Error("Erro ao buscar contas bancárias");
-      }
-    } catch (error) {
-      console.error("Erro:", error);
-      alert("Erro ao buscar contas bancárias. Por favor, tente novamente.");
+      console.error("Erro ao buscar transações:", error);
     }
   };
 
@@ -88,14 +67,14 @@ export default withAuth(function Home() {
   };
 
   const handleTransactionSubmit = async () => {
-    const description = document.getElementById("description").value;
-    const value = parseFloat(document.getElementById("value").value);
-    const categoria = document.getElementById("categoria").value;
-    const type = document.getElementById("type").value;
-
-    const date = editDate;
-
-    const transaction = { description, value, date, type, categoria };
+    const transaction = {
+      description: editDescription,
+      value: parseFloat(editValue),
+      date: editDate,
+      dueDate: editDueDate,
+      type: editType,
+      categoria: editCategoria,
+    };
 
     try {
       const response = await fetch("http://localhost:3001/api/transactions", {
@@ -117,7 +96,7 @@ export default withAuth(function Home() {
         alert("Erro ao adicionar transação. Por favor, tente novamente.");
       }
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao adicionar transação:", error);
       alert("Erro ao adicionar transação. Por favor, tente novamente.");
     }
   };
@@ -129,7 +108,8 @@ export default withAuth(function Home() {
       value: parseFloat(editValue),
       type: editType,
       date: editDate,
-      categoria: editCategoria, // Inclui a categoria atualizada
+      dueDate: editDueDate,
+      categoria: editCategoria,
     };
 
     try {
@@ -149,9 +129,9 @@ export default withAuth(function Home() {
       }
 
       fetchTransactions();
-      closeEditModal(); // Fechar modal de edição após sucesso
+      closeEditModal();
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao editar transação:", error);
       alert("Erro ao editar transação. Por favor, tente novamente.");
     }
   };
@@ -171,45 +151,8 @@ export default withAuth(function Home() {
 
       fetchTransactions();
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao excluir transação:", error);
       alert("Erro ao excluir transação. Por favor, tente novamente.");
-    }
-  };
-
-  const submitAccount = async () => {
-    const account = {
-      accountName,
-      bank,
-      accountNumber,
-      balance: parseFloat(balance),
-    };
-
-    try {
-      const response = await fetch("http://localhost:3001/accounts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(account),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao cadastrar conta bancária");
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        fetchAccounts(); // Atualiza a lista de contas após adição bem sucedida
-        setAccountName("");
-        setBank("");
-        setAccountNumber("");
-        setBalance("");
-      } else {
-        alert("Erro ao cadastrar conta bancária. Por favor, tente novamente.");
-      }
-    } catch (error) {
-      console.error("Erro:", error);
-      alert("Erro ao cadastrar conta bancária. Por favor, tente novamente.");
     }
   };
 
@@ -218,14 +161,9 @@ export default withAuth(function Home() {
     setEditDescription(transaction.description);
     setEditValue(transaction.value.toString());
     setEditType(transaction.type);
-    setEditCategoria(transaction.categoria); // Inclui a categoria para edição
-
-    // Validate transaction.date before setting editDate
-    if (transaction.date) {
-      setEditDate(new Date(transaction.date));
-    } else {
-      setEditDate(new Date());
-    }
+    setEditCategoria(transaction.categoria);
+    setEditDate(transaction.date ? new Date(transaction.date) : new Date());
+    setEditDueDate(transaction.dueDate ? new Date(transaction.dueDate) : new Date());
   };
 
   const closeEditModal = () => {
@@ -234,25 +172,8 @@ export default withAuth(function Home() {
     setEditValue("");
     setEditType("entry");
     setEditDate(new Date());
-  };
-  const handleDeleteAccount = async (accountId) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3001/accounts/${accountId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erro ao excluir conta bancária");
-      }
-
-      fetchAccounts(); // Atualiza a lista de contas após exclusão bem sucedida
-    } catch (error) {
-      console.error("Erro:", error);
-      alert("Erro ao excluir conta bancária. Por favor, tente novamente.");
-    }
+    setEditDueDate(new Date());
+    setEditCategoria("");
   };
 
   return (
@@ -263,15 +184,23 @@ export default withAuth(function Home() {
             Gerenciamento de Contas
           </button>
         </Link>
-      </div>
-      <div className="paginacategorias">
         <Link href="/cadastrar/categorias">
           <button style={{ padding: "10px 20px", cursor: "pointer" }}>
             Adicionar Categorias
           </button>
         </Link>
+        <Link href="/cadastrar/contabanco">
+          <button style={{ padding: "10px 20px", cursor: "pointer" }}>
+            Cadastrar Conta Bancária
+          </button>
+        </Link>
+        <Link href="/cadastrar/lembretes">
+          <button style={{ padding: "10px 20px", cursor: "pointer" }}>
+            Lembretes
+          </button>
+        </Link>
       </div>
-      {/* Seção de Controle de Finanças */}
+
       <div className="container2">
         <h2>CONTROLE DE FINANÇAS</h2>
         <div className="summary-section">
@@ -289,17 +218,23 @@ export default withAuth(function Home() {
           </div>
         </div>
 
-        {/* Formulário de Nova Transação */}
         <div className="entry-section">
           <h3>Nova transação</h3>
           <div className="entry-form">
             <input
               type="text"
-              id="description"
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
               placeholder="Descrição"
               required
             />
-            <input type="text" id="value" placeholder="Valor" required />
+            <input
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              placeholder="Valor"
+              required
+            />
             <DatePicker
               selected={editDate}
               onChange={(date) => setEditDate(date)}
@@ -307,11 +242,24 @@ export default withAuth(function Home() {
               placeholderText="Selecione a Data"
               className="date-picker"
             />
-            <select id="type" defaultValue="entry">
+            <DatePicker
+              selected={editDueDate}
+              onChange={(date) => setEditDueDate(date)}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="Selecione a Data de Vencimento"
+              className="date-picker"
+            />
+            <select
+              value={editType}
+              onChange={(e) => setEditType(e.target.value)}
+            >
               <option value="entry">Entrada</option>
               <option value="exit">Saída</option>
             </select>
-            <select id="categoria" name="categoria">
+            <select
+              value={editCategoria}
+              onChange={(e) => setEditCategoria(e.target.value)}
+            >
               {categorias.map((cat) => (
                 <option key={cat._id} value={cat.categoria}>
                   {cat.categoria}
@@ -322,15 +270,16 @@ export default withAuth(function Home() {
           </div>
         </div>
       </div>
-      {/* Tabela de Transações */}
+
       <div className="container2">
         <table className="transaction-table">
           <thead>
             <tr>
               <th>Descrição</th>
               <th>Valor</th>
-              <th>Categoria</th>
               <th>Data</th>
+              <th>Vencimento</th>
+              <th>Categoria</th>
               <th>Tipo</th>
               <th>Ações</th>
             </tr>
@@ -340,8 +289,13 @@ export default withAuth(function Home() {
               <tr key={transaction._id}>
                 <td>{transaction.description}</td>
                 <td>{transaction.value.toFixed(2)}</td>
+                <td>
+                  {transaction.createdAt ? format(new Date(transaction.createdAt), "yyyy-MM-dd") : ""}
+                </td>
+                <td>
+                  {transaction.dueDate ? format(new Date(transaction.dueDate), "yyyy-MM-dd") : ""}
+                </td>
                 <td>{transaction.categoria}</td>
-                <td>{format(new Date(transaction.date), "yyyy-MM-dd")}</td>
                 <td>{transaction.type === "entry" ? "Entrada" : "Saída"}</td>
                 <td>
                   <button onClick={() => openEditModal(transaction)}>
@@ -356,7 +310,7 @@ export default withAuth(function Home() {
           </tbody>
         </table>
       </div>
-      {/* Modal de Edição */}
+
       {editingTransaction && (
         <div id="editTransactionModal" className="modal">
           <div className="modal-content">
@@ -386,6 +340,13 @@ export default withAuth(function Home() {
                 placeholderText="Selecione a Data"
                 className="date-picker"
               />
+              <DatePicker
+                selected={editDueDate}
+                onChange={(date) => setEditDueDate(date)}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Selecione a Data de Vencimento"
+                className="date-picker"
+              />
               <select
                 value={editCategoria}
                 onChange={(e) => setEditCategoria(e.target.value)}
@@ -409,73 +370,8 @@ export default withAuth(function Home() {
           </div>
         </div>
       )}
-      {/* Formulário de Nova Conta Bancária */}
-      <div className="container2">
-        <h2>CADASTRO DE CONTAS BANCÁRIAS</h2>
-        <div className="entry-section">
-          <h3>Nova transação</h3>
-          <div className="entry-form">
-            <input
-              type="text"
-              id="description"
-              placeholder="Descrição"
-              required
-            />
-            <input type="text" id="value" placeholder="Valor" required />
-            <DatePicker
-              selected={editDate}
-              onChange={(date) => setEditDate(date)}
-              dateFormat="yyyy-MM-dd"
-              placeholderText="Selecione a Data"
-              className="date-picker"
-            />
-            <select id="categoria" defaultValue="">
-              <option value="" disabled>
-                Selecione uma Categoria
-              </option>
-              {categorias.map((cat) => (
-                <option key={cat._id} value={cat.categoria}>
-                  {cat.categoria}
-                </option>
-              ))}
-            </select>
-            <select id="type" defaultValue="entry">
-              <option value="entry">Entrada</option>
-              <option value="exit">Saída</option>
-            </select>
-            <button onClick={handleTransactionSubmit}>Incluir</button>
-          </div>
-        </div>
-      </div>
-      {/*Tabela de Contas Bancárias*/}
-      <div className="container3">
-        <table className="account-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Banco</th>
-              <th>Número</th>
-              <th>Saldo</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map((account) => (
-              <tr key={account._id}>
-                <td>{account.accountName}</td>
-                <td>{account.bank}</td>
-                <td>{account.accountNumber}</td>
-                <td>{account.balance.toFixed(2)}</td>
-                <td>
-                  <button onClick={() => handleDeleteAccount(account._id)}>
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
-})
+};
+
+export default withAuth(Home);
